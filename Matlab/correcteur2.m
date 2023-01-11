@@ -25,8 +25,8 @@ fm = 1/(2*pi*tm) ;
 ft = 400 ;
 fi = (ft*Rmoteur)/(2*E*Kretour) ;
 ti = 1/(2*pi*fi) ;
-
-
+Fe = 9*ft ;
+Te = 1/Fe ;
 
 %% FONCTIONS DE TRANSFERT
 numG = [2*E] ;
@@ -41,6 +41,9 @@ numC = [tm 1] ;
 denC = [ti 0] ;
 C = tf(numC,denC) ;
 
+%% DISCRETISATION
+Cz = c2d(C,Te,'tustin') ;
+
 %% BODES
 figure(1)
 bode(C*F*G)
@@ -49,7 +52,7 @@ figure(2)
 bode(C*G/(1+C*G*F))
 
 %% SIMULATION
-simu = sim('FonctionBO.slx') ;
+simu = sim('FonctionBFenZ.slx') ;
 
 %% TRACÉ DES COURBES
 figure(3)
@@ -66,5 +69,4 @@ hold on
 title ('rapport cyclique')
 grid;
 legend('alpha');
-
 

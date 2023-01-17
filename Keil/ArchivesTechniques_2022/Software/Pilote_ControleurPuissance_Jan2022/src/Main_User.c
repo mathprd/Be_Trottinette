@@ -68,6 +68,10 @@ void IT_Principale(void);
 
 float Te,Te_us;
 
+//variables de la fonction d'interuption
+
+float eps_old, a0, a1, Tho, Tho_i, Sz, In_I1, In_3V3, eps ;
+
 int main (void)
 {
 // !OBLIGATOIRE! //	
@@ -76,7 +80,7 @@ Conf_Generale_IO_Carte();
 
 	
 // ------------- Discret, choix de Te -------------------	
-Te=	1.0; // en seconde
+Te=	2.78e-4; // en seconde
 Te_us=Te*1000000.0; // conversion en µs pour utilisation dans la fonction d'init d'interruption
 	
 
@@ -104,8 +108,17 @@ LED_Codeur_Off;
 // Conf IT
 Conf_IT_Principale_Systick(IT_Principale, Te_us);
 
-	while(1)
-	{}
+//Initialisation variables de la fonction d'interruption
+eps_old = 0 ;
+Sz = 0 ;
+Tho = 2e-3 ;
+Tho_i = 2.86e-3 ;
+a0 = (Te+2*Tho)/(2*Tho_i) ;
+a1 = (Te-2*Tho)/(2*Tho_i) ;
+
+	while(1){
+		
+	}
 
 }
 
@@ -116,14 +129,19 @@ Conf_IT_Principale_Systick(IT_Principale, Te_us);
 //=================================================================================================================
 // 					FONCTION D'INTERRUPTION PRINCIPALE SYSTICK
 //=================================================================================================================
-int Courant_1,Cons_In;
-
 
 void IT_Principale(void)
 {
- Cons_In=Entree_10V();
- R_Cyc_1(Cons_In);
- R_Cyc_2(Cons_In);
-	
+	In_I1 = (I1()*3.3)/4095 ;
+	In_3V3 = Entree_3V3()*3.3/4095 ;
+	eps = In_3V3 - In_I1 ;
+	Sz=(Sz+(a1*eps_old)+(a0*eps)) ;
+	if (Sz>=0.5)
+		Sz = 0.5 ;
+	if (Sz<=-0.5)
+		Sz = -0.5 ;
+	R_Cyc_1((int)(Sz+0.5)*4095);
+	R_Cyc_2((int)(Sz+0.5)*4095);
+	eps_old = eps ;
 }
 

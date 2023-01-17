@@ -25,7 +25,7 @@ fm = 1/(2*pi*tm) ;
 ft = 400 ;
 fi = (ft*Rmoteur)/(2*E*Kretour) ;
 ti = 1/(2*pi*fi) ;
-Fe = 9*ft ;
+Fe = 18*ft ;
 Te = 1/Fe ;
 
 %% FONCTIONS DE TRANSFERT
@@ -72,6 +72,6 @@ legend('alpha');
 
 figure(5)
 plot(simu.yout{5}.Values)
-title('Courant correcteur seul')
+title('Courant')
 grid ;
-legend('Is');
+legend('Icons','Is');

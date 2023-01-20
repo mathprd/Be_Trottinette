@@ -1,27 +1,77 @@
-E =1.65; %same que Kfiltre
-Kfiltre =(1+12/10)*1/(5100+10000); %Pas 100/100 sur
-fT=400;
-fi=fT*1/(Kfiltre*2*E*0.1);
-tauI = 1/(2*pi*fi);
+clear all
+close all
+clc
 
-numG = [0 2*E];
-denG = [0 1];
-G=tf(numG , denG);
+%% CONSTANTES
+E = 24 ;
+Rmoteur = 1 ;
+L = 2e-3 ;
+tm = L/Rmoteur ;
+Gain_Capteur = 0.104 ;
+R5 = 5.1e3 ;
+R8 = 10e3 ;
+R12 = 10e3 ;
+R18 = 12e3 ;
+R21 = 220 ;
+C2 = 22e-9 ;
+C7 = 22e-9 ;
+Kretour = Gain_Capteur * (R8/(R5+R8)*(1+R18/R12)) ;
+t1 = (R5*R8*C2)/(R5+R8) ;
+f1 = 1/(2*pi*t1) ;
+t2 = R21*C7 ;
+f2 = 1/(2*pi*t2) ;
+t = tm ;
+f = 1/(2*pi*t) ;
+ft = 400 ;
+fi = (ft*Rmoteur)/(2*E*Kretour) ;
+ti = 1/(2*pi*fi) ;
+Fe = 9*ft ;
+Te = 1/Fe ;
 
-numM = [0 1];
-denM=[0.002 1];
-M=tf(numM, denM);
+%% FONCTIONS DE TRANSFERT
+numCD = [2*E] ;
+denCD = [Rmoteur*tm Rmoteur] ;
+CD =tf(numCD,denCD) ;
 
-N=0.10;
+numCR = [Kretour] ;
+denCR = [t1*t2 t1+t2 1] ;
+CR = tf(numCR,denCR) ;
 
-numF=[0 Kfiltre];
-denF=[220*22e-9 1];
-F=tf(numF,denF);
+numC = [t 1] ;
+denC = [ti 0] ;
+C = tf(numC,denC) ;
 
-numF2 = 1;
-denF2 = [74e-6 1];
-F2=tf(numF2,denF2);
+%% DISCRETISATION
+Cz = c2d(C,Te,'tustin') ;
 
-numC=[2e-3 1];
-denC=[tauI 0];
-C= tf(numC,denC);
+%% BODES
+figure(1)
+bode(C*CR*CD)
+
+figure(2)
+bode(C*CD/(1+C*CD*CR))
+
+%% SIMULATION
+simu = sim('FonctionBFenZ_et_correcteur_isole.slx') ;
+
+%% TRACÉ DES COURBES
+figure(3)
+plot(simu.yout{1}.Values)
+hold on
+plot(simu.yout{2}.Values)
+title('Courant')
+grid ;
+legend('Icons','Is');
+
+figure(4)
+plot(simu.yout{4}.Values)
+hold on 
+title ('rapport cyclique')
+grid;
+legend('alpha');
+
+figure(5)
+plot(simu.yout{5}.Values)
+title('Courant correcteur seul')
+grid ;
+legend('Is');

@@ -53,6 +53,8 @@ bode(C*CD/(1+C*CD*CR))
 
 %% SIMULATION
 simu = sim('FonctionBFenZ_et_correcteur_isole.slx') ;
+%%simu = sim('FonctionBFenZ_et_correcteur_isole.slx') ;
+%%simu = sim('FonctionBO.slx') ;
 
 %% TRACÉ DES COURBES
 figure(3)
@@ -71,6 +73,12 @@ grid;
 legend('alpha');
 
 figure(5)
+plot(simu.yout{3}.Values)
+title ('Evolution de l erreur')
+grid;
+legend('Erreur');
+
+figure(6)
 plot(simu.yout{5}.Values)
 title('Courant correcteur seul')
 grid ;
